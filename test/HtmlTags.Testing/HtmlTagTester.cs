@@ -984,7 +984,7 @@ namespace HtmlTags.Testing
         {
             var tag = new HtmlTag("div");
             tag.Data("name", "Luke");
-            tag.Data("name", null);
+            tag.Data("name", (object)null);
             tag.HasAttr("data-name").ShouldBeFalse();
         }
 
