@@ -123,22 +123,7 @@ namespace HtmlTags
             tag.Append(tagSource);
             return tag;
         }
-
-        /// <summary>
-        /// Adds a sequence of tags as children of the current tag. Returns the parent tag.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tag">The tag.</param>
-        /// <param name="tags">A sequence of tags to add as children.</param>
-        /// <returns>
-        /// The parent tag
-        /// </returns>
-        public static T Append<T>(this T tag, params HtmlTag[] tags) where T : HtmlTag
-        {
-            tag.Append(tags);
-            return tag;
-        }
-
+        
         /// <summary>
         /// Adds a sequence of tags as children of the current tag. Returns the parent tag.
         /// </summary>

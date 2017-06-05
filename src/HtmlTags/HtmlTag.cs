@@ -231,7 +231,7 @@ namespace HtmlTags
         /// </summary>
         /// <param name="tags">A sequence of tags to add as children.</param>
         /// <returns>The parent tag</returns>
-        protected internal virtual void Append<T>(IEnumerable<HtmlTag> tags)
+        protected internal virtual void Append(IEnumerable<HtmlTag> tags)
         {
             tags.Each(x =>
             {
