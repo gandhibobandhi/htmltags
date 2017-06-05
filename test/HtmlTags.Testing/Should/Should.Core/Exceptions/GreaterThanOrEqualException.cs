@@ -10,9 +10,12 @@
             : base(right, left, "GreaterThanOrEqual", ">=")
         { }
 
-        /// <summary>Initializes a new instance of the <see cref="GreaterThanOrEqualException"/> class.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GreaterThanOrEqualException" /> class.
+        /// </summary>
         /// <param name="left">The value being tested.</param>
         /// <param name="right">The exclusive minimum allowed value.</param>
+        /// <param name="message">The message.</param>
         public GreaterThanOrEqualException(object left, object right, string message)
             : base(left, right, message) 
         { }

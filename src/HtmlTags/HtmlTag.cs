@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Html;
 using System.Text.Encodings.Web;
 #else
 using System.Web;
+// ReSharper disable VirtualMemberNeverOverridden.Global
 #endif
 
 namespace HtmlTags
@@ -161,7 +162,6 @@ namespace HtmlTags
         {
             var element = Add(tagNames);
             configuration(element);
-
             return element;
         }
 
@@ -201,15 +201,11 @@ namespace HtmlTags
         /// <summary>
         /// Adds a LiteralTag of unencoded html to this HtmlTag
         /// </summary>
-        /// <param name="html"></param>
-        /// <returns></returns>
         protected internal virtual void AppendHtml(string html) => Append(new LiteralTag(html));
 
         /// <summary>
         /// Creates nested child tags, runs <paramref name="configuration"/> on the innermost tag, and returns the tag on which the method was called. Use <see cref="Add(string, Action{HtmlTag})"/> if you want to return the innermost tag.
         /// </summary>
-        /// <param name="tagNames"></param>
-        /// <param name="configuration"></param>
         /// <returns>The parent tag</returns>
         protected internal virtual void Append(string tagNames, Action<HtmlTag> configuration)
         {
@@ -235,7 +231,7 @@ namespace HtmlTags
         /// </summary>
         /// <param name="tags">A sequence of tags to add as children.</param>
         /// <returns>The parent tag</returns>
-        protected internal virtual void Append(IEnumerable<HtmlTag> tags)
+        protected internal virtual void Append<T>(IEnumerable<HtmlTag> tags)
         {
             tags.Each(x =>
             {
@@ -270,13 +266,12 @@ namespace HtmlTags
         /// <param name="key">The name of the data storage location</param>
         /// <param name="configure">The action to perform on the currently stored value</param>
         /// <returns>The calling tag.</returns>
-        public virtual HtmlTag Data<T>(string key, Action<T> configure) where T : class
+        public virtual void Data<T>(string key, Action<T> configure) where T : class
         {
             var dataKey = DataPrefix + key;
-            if (!_htmlAttributes.Has(dataKey)) return this;
+            if (!_htmlAttributes.Has(dataKey)) return;
             var value = (T) _htmlAttributes[dataKey].Value;
             configure(value);
-            return this;
         }
 
         /// <summary>
@@ -574,12 +569,12 @@ namespace HtmlTags
         /// <exception cref="System.ArgumentException">One or more CSS class names were invalid (contained invalid characters)</exception>
         protected internal virtual void AddClass(string className)
         {
-            IEnumerable<string> classes = ParseClassName(className);
-            foreach (string parsedClass in classes)
+            var classes = ParseClassName(className);
+            foreach (var parsedClass in classes)
             {
                 if (!CssClassNameValidator.IsValidClassName(parsedClass))
                 {
-                    throw new ArgumentException(string.Format("CSS class names is not valid. Problem class was '{0}'", new[] {className}), nameof(className));
+                    throw new ArgumentException(string.Format("CSS class names is not valid. Problem class was '{0}'", new object[] {className}), nameof(className));
                 }
 
                 _cssClasses.Add(parsedClass);
@@ -656,7 +651,6 @@ namespace HtmlTags
         /// Specify that the tag should render only its children and not itself.  
         /// Used for declaring container/placeholder tags that should not affect the final markup.
         /// </summary>
-        /// <returns></returns>
         protected internal virtual void NoTag()
         {
             _ignoreOpeningTag = true;
@@ -693,7 +687,7 @@ namespace HtmlTags
             return wrapper;
         }
 
-        public HtmlTag WrapWith(HtmlTag wrapper)
+        public T WrapWith<T>(T wrapper) where T : HtmlTag
         {
             wrapper.InsertFirst(this);
             return wrapper;

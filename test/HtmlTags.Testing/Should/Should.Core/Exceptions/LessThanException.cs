@@ -10,9 +10,12 @@
             : base(right, left, "LessThan", "<")
         { }
 
-        /// <summary>Initializes a new instance of the <see cref="LessThanException"/> class.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LessThanException" /> class.
+        /// </summary>
         /// <param name="left">The value being tested.</param>
         /// <param name="right">The exclusive maximum allowed value.</param>
+        /// <param name="message">The message.</param>
         public LessThanException(object left, object right, string message)
             : base(left, right, message)
         { }

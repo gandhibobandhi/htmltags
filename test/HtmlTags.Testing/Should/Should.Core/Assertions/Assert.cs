@@ -241,6 +241,7 @@ namespace Should.Core.Assertions
         /// <param name="expected">The expected value</param>
         /// <param name="actual">The value to be compared against</param>
         /// <param name="comparer">The comparer used to compare the two objects</param>
+        /// <param name="userMessage"></param>
         /// <exception cref="EqualException">Thrown when the objects are not equal</exception>
         public static void Equal<T>(T expected,
                                     T actual,
@@ -708,6 +709,7 @@ namespace Should.Core.Assertions
         /// Verifies that an object reference is not null.
         /// </summary>
         /// <param name="object">The object to be validated</param>
+        /// <param name="message">The message.</param>
         /// <exception cref="NotNullException">Thrown when the object is not null</exception>
         public static void NotNull(object @object, string message)
         {

@@ -193,8 +193,10 @@ namespace Should
         /// </summary>
         /// <typeparam name="T">The type the object should implement</typeparam>
         /// <param name="object">The object to be evaluated</param>
-        /// <param name="message">The user message to show on failure</param>
-        /// <returns>The object, casted to type T when successful</returns>
+        /// <param name="userMessage">The user message.</param>
+        /// <returns>
+        /// The object, casted to type T when successful
+        /// </returns>
         /// <exception cref="IsTypeException">Thrown when the object is not the given type</exception>
         public static T ShouldImplement<T>(this object @object, string userMessage)
         {
@@ -206,7 +208,7 @@ namespace Should
         /// </summary>
         /// <param name="object">The object to be evaluated</param>
         /// <param name="expectedType">The type the object should implement</param>
-        /// <param name="message">The user message to show on failure</param>
+        /// <param name="userMessage">The user message.</param>
         /// <exception cref="IsTypeException">Thrown when the object is not the given type</exception>
         public static void ShouldImplement(this object @object,
                                            Type expectedType,
@@ -234,7 +236,7 @@ namespace Should
         /// <typeparam name="T">The type of the objects to be compared</typeparam>
         /// <param name="actual">The value to be compared against</param>
         /// <param name="expected">The expected value</param>
-        /// <param name="message">The user message to show on failure</param>
+        /// <param name="userMessage">The user message.</param>
         /// <exception cref="EqualException">Thrown when the objects are not equal</exception>
         public static void ShouldEqual<T>(this T actual,
                                           T expected,

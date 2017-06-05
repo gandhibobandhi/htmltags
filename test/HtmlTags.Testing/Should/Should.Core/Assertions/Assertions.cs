@@ -6,7 +6,7 @@ using Should.Core.Exceptions;
 namespace Should.Core.Assertions
 {
     /// <summary>
-    /// A wrapper for Assert which is used by <see cref="TestClass"/>.
+    /// A wrapper for Assert which is used by <see cref="Xunit.Sdk.TestClass"/>.
     /// </summary>
     public class Assertions
     {
