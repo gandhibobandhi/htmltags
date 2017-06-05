@@ -6,7 +6,7 @@ namespace HtmlTags.Conventions.Elements.Builders
 
         public HtmlTag Build(ElementRequest request)
         {
-            return new TextboxTag().Attr("value", (request.RawValue ?? string.Empty).ToString());
+            return HtmlTagExtensions.Attr(new TextboxTag(),"value", (request.RawValue ?? string.Empty).ToString());
         }
     }
 }

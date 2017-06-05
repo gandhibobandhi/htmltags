@@ -23,6 +23,10 @@ namespace HtmlTags
         /// <param name="tag"></param>
         /// <param name="html"></param>
         /// <returns></returns>
-        public static HtmlTag AppendHtml(this HtmlTag tag, string html) => tag.Append(new LiteralTag(html));
+        public static T AppendHtml<T>(this T tag, string html) where T : HtmlTag
+        {
+            tag.Append(new LiteralTag(html));
+            return tag;
+        }
     }
 }

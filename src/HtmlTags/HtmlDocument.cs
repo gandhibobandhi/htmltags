@@ -27,7 +27,11 @@ namespace HtmlTags
         public HtmlTag RootTag { get; }
         public HtmlTag Head { get; }
         public HtmlTag Body { get; }
-        public string Title { get { return _title.Text(); } set { _title.Text(value); } }
+        public string Title
+        {
+            get => _title.Text();
+            set => _title.Text(value);
+        }
 
         public HtmlTag Current => _currentStack.Any() ? _currentStack.Peek() : Body;
         public HtmlTag Last { get; private set; }
@@ -122,7 +126,8 @@ namespace HtmlTags
         {
             var key = Guid.NewGuid().ToString();
             _alterations.Add(html => html.Replace(key, styling));
-            return Head.Add("style").Text(key);
+            var style = Head.Add("style");
+            return HtmlTagExtensions.Text(style, key);
         }
 
         public HtmlTag AddJavaScript(string javascript) => AddScript("text/javascript", javascript);
@@ -131,20 +136,21 @@ namespace HtmlTags
         {
             var key = Guid.NewGuid().ToString();
             _alterations.Add(html => html.Replace(key, Environment.NewLine + scriptContents + Environment.NewLine));
-            return Head.Add("script").Attr("type", scriptType).Text(key);
+            return HtmlTagExtensions.Text(HtmlTagExtensions.Attr(Head.Add("script"), "type", scriptType), key);
         }
 
         public HtmlTag ReferenceJavaScriptFile(string path) => ReferenceScriptFile("text/javascript", path);
 
-        public HtmlTag ReferenceScriptFile(string scriptType, string path) => Head.Add("script").Attr("type", scriptType).Attr("src", path);
+        public HtmlTag ReferenceScriptFile(string scriptType, string path) => HtmlTagExtensions.Attr(HtmlTagExtensions.Attr(Head.Add("script"), "type", scriptType), "src", path);
 
         public HtmlTag ReferenceStyle(string path)
         {
-            return Head.Add("link")
-                .Attr("media", "screen")
-                .Attr("href", path)
-                .Attr("type", "text/css")
-                .Attr("rel", "stylesheet");
+            var link = Head.Add("link");
+            link.Attr("media", "screen");
+            link.Attr("href", path);
+            link.Attr("type", "text/css");
+            link.Attr("rel", "stylesheet");
+            return link;
         }
 
         public void Rewind() => _currentStack.Clear();

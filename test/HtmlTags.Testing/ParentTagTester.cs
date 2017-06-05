@@ -33,7 +33,7 @@ namespace HtmlTags.Testing
         {
             var child = new HtmlTag("span");
             var child1 = new HtmlTag("span");
-            var tag = new HtmlTag("div").Append(new List<HtmlTag>() { child, child1 });
+            var tag = new HtmlTag("div").Append(new List<HtmlTag> { child, child1 });
             tag.ShouldEqual(child.Parent);
             tag.ShouldEqual(child1.Parent);
             tag.Children[0].ShouldEqual(child);

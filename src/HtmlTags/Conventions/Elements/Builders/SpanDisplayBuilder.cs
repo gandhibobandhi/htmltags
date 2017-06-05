@@ -4,7 +4,7 @@ namespace HtmlTags.Conventions.Elements.Builders
     {
         public HtmlTag Build(ElementRequest request)
         {
-            return new HtmlTag("span").Text(request.StringValue()).Id(request.ElementId);
+            return HtmlTagExtensions.Id(HtmlTagExtensions.Text(new HtmlTag("span"), request.StringValue()), request.ElementId);
         }
     }
     

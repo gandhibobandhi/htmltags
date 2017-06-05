@@ -15,7 +15,7 @@ namespace HtmlTags
             : base("table")
         {
             THead = new HtmlTag("thead", this);
-            TFoot = new HtmlTag("tfoot", this).Render(false);
+            TFoot = HtmlTagExtensions.Render(new HtmlTag("tfoot", this), false);
             TBody = new HtmlTag("tbody", this);
         }
 
@@ -88,11 +88,11 @@ namespace HtmlTags
         {
         }
 
-        public HtmlTag Header(string text) => new HtmlTag("th", this).Text(text);
+        public HtmlTag Header(string text) => HtmlTagExtensions.Text(new HtmlTag("th", this), text);
 
         public HtmlTag Header() => new HtmlTag("th", this);
 
-        public HtmlTag Cell(string text) => new HtmlTag("td", this).Text(text);
+        public HtmlTag Cell(string text) => HtmlTagExtensions.Text(new HtmlTag("td", this), text);
 
         public HtmlTag Cell() => new HtmlTag("td", this);
     }

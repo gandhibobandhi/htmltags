@@ -22,9 +22,9 @@ namespace HtmlTags
         , IHtmlString
 #endif
     {
-        public static HtmlTag Empty() => new HtmlTag("span").Render(false);
+        public static HtmlTag Empty() => HtmlTagExtensions.Render(new HtmlTag("span"), false);
 
-        public static HtmlTag Placeholder() => new HtmlTag().NoTag();
+        public static HtmlTag Placeholder() => HtmlTagExtensions.NoTag(new HtmlTag());
 
         private const string CssClassAttribute = "class";
         private const string CssStyleAttribute = "style";
@@ -89,11 +89,10 @@ namespace HtmlTags
         /// </summary>
         /// <param name="nextTag">The tag to add as a sibling</param>
         /// <returns>The original tag</returns>
-        public HtmlTag After(HtmlTag nextTag)
+        protected internal virtual void After(HtmlTag nextTag)
         {
             nextTag.Next = Next;
             Next = nextTag;
-            return this;
         }
 
         /// <summary>
@@ -111,12 +110,11 @@ namespace HtmlTags
             yield return this;
         }
 
-        public string TagName() => _tag;
+        public virtual string TagName() => _tag;
 
-        public HtmlTag TagName(string tag)
+        protected internal virtual void TagName(string tag)
         {
             _tag = tag.ToLower();
-            return this;
         }
 
         public HtmlTag FirstChild() => _children.FirstOrDefault();
@@ -127,28 +125,27 @@ namespace HtmlTags
             _children.Insert(0, tag);
         }
 
-        public HtmlTag Style(string key, string value)
+        protected internal virtual void Style(string key, string value)
         {
             _customStyles[key] = value;
-            return this;
         }
 
         public string Style(string key) => _customStyles[key];
 
         public bool HasStyle(string key) => _customStyles.ContainsKey(key);
 
-        public HtmlTag Id(string id) => Attr("id", id);
+        protected internal virtual void Id(string id) => Attr("id", id);
 
-        public string Id() => Attr("id");
+        public virtual string Id() => Attr("id");
 
-        public HtmlTag Hide() => Style("display", "none");
+        protected internal virtual void Hide() => Style("display", "none");
 
         /// <summary>
         /// Creates nested child tags and returns the innermost tag. Use <see cref="Append(string)"/> if you want to return the parent tag.
         /// </summary>
         /// <param name="tagNames">One or more HTML element names separated by a <c>/</c> or <c>></c></param>
         /// <returns>The innermost tag that was newly added</returns>
-        public HtmlTag Add(string tagNames)
+        public virtual HtmlTag Add(string tagNames)
         {
             var tags = tagNames.ToDelimitedArray('/', '>');
             return tags.Aggregate(this, (parent, tag) => new HtmlTag(tag, parent));
@@ -160,7 +157,7 @@ namespace HtmlTags
         /// <param name="tagNames">One or more HTML element names separated by a <c>/</c> or <c>></c></param>
         /// <param name="configuration">Modifications to perform on the newly added innermost tag</param>
         /// <returns>The innermost tag that was newly added</returns>
-        public HtmlTag Add(string tagNames, Action<HtmlTag> configuration)
+        public virtual HtmlTag Add(string tagNames, Action<HtmlTag> configuration)
         {
             var element = Add(tagNames);
             configuration(element);
@@ -185,11 +182,10 @@ namespace HtmlTags
         /// </summary>
         /// <param name="child">The tag to add as a child of the parent.</param>
         /// <returns>The parent tag</returns>
-        public HtmlTag Append(HtmlTag child)
+        protected internal virtual void Append(HtmlTag child)
         {
             child.Parent = this;
             _children.Add(child);
-            return this;
         }
 
         /// <summary>
@@ -197,10 +193,9 @@ namespace HtmlTags
         /// </summary>
         /// <param name="tagNames">One or more HTML element names separated by a <c>/</c> or <c>></c></param>
         /// <returns>The instance on which the method was called (the parent of the new tags)</returns>
-        public HtmlTag Append(string tagNames)
+        protected internal virtual void Append(string tagNames)
         {
             Add(tagNames);
-            return this;
         }
 
         /// <summary>
@@ -208,7 +203,7 @@ namespace HtmlTags
         /// </summary>
         /// <param name="html"></param>
         /// <returns></returns>
-        public HtmlTag AppendHtml(string html) => Append(new LiteralTag(html));
+        protected internal virtual void AppendHtml(string html) => Append(new LiteralTag(html));
 
         /// <summary>
         /// Creates nested child tags, runs <paramref name="configuration"/> on the innermost tag, and returns the tag on which the method was called. Use <see cref="Add(string, Action{HtmlTag})"/> if you want to return the innermost tag.
@@ -216,10 +211,9 @@ namespace HtmlTags
         /// <param name="tagNames"></param>
         /// <param name="configuration"></param>
         /// <returns>The parent tag</returns>
-        public HtmlTag Append(string tagNames, Action<HtmlTag> configuration)
+        protected internal virtual void Append(string tagNames, Action<HtmlTag> configuration)
         {
             Add(tagNames, configuration);
-            return this;
         }
 
         /// <summary>
@@ -227,14 +221,13 @@ namespace HtmlTags
         /// </summary>
         /// <param name="tagSource">The source of tags to add as children.</param>
         /// <returns>The parent tag</returns>
-        public HtmlTag Append(ITagSource tagSource)
+        protected internal virtual void Append(ITagSource tagSource)
         {
             tagSource.AllTags().Each(x =>
             {
                 x.Parent = this;
                 _children.Add(x);
             });
-            return this;
         }
 
         /// <summary>
@@ -242,14 +235,13 @@ namespace HtmlTags
         /// </summary>
         /// <param name="tags">A sequence of tags to add as children.</param>
         /// <returns>The parent tag</returns>
-        public HtmlTag Append(IEnumerable<HtmlTag> tags)
+        protected internal virtual void Append(IEnumerable<HtmlTag> tags)
         {
             tags.Each(x =>
             {
                 x.Parent = this;
                 _children.Add(x);
             });
-            return this;
         }
 
         /// <summary>
@@ -258,15 +250,17 @@ namespace HtmlTags
         /// <param name="key">The name of the data attribute. Will have "data-" prepended when rendered.</param>
         /// <param name="value">The value to store. Non-string values will be JSON </param>
         /// <returns>The calling tag.</returns>
-        public HtmlTag Data(string key, object value)
+        protected internal virtual void Data(string key, object value)
         {
             var dataKey = DataPrefix + key;
             if (value == null)
             {
-                return RemoveAttr(dataKey);
+                RemoveAttr(dataKey);
             }
-            _htmlAttributes[dataKey] = new HtmlAttribute(value);
-            return this;
+            else
+            {
+                _htmlAttributes[dataKey] = new HtmlAttribute(value);
+            }
         }
 
         /// <summary>
@@ -276,7 +270,7 @@ namespace HtmlTags
         /// <param name="key">The name of the data storage location</param>
         /// <param name="configure">The action to perform on the currently stored value</param>
         /// <returns>The calling tag.</returns>
-        public HtmlTag Data<T>(string key, Action<T> configure) where T : class
+        public virtual HtmlTag Data<T>(string key, Action<T> configure) where T : class
         {
             var dataKey = DataPrefix + key;
             if (!_htmlAttributes.Has(dataKey)) return this;
@@ -290,7 +284,7 @@ namespace HtmlTags
         /// </summary>
         /// <param name="key">The name of the data storage location</param>
         /// <returns>The calling tag.</returns>
-        public object Data(string key)
+        public virtual object Data(string key)
         {
             var dataKey = DataPrefix + key;
             return _htmlAttributes.Has(dataKey) ? _htmlAttributes[dataKey].Value : null;
@@ -310,10 +304,9 @@ namespace HtmlTags
         /// </code>
         /// </remarks>
         /// <returns>The calling tag.</returns>
-        public HtmlTag MetaData(string key, object value)
+        protected internal virtual void MetaData(string key, object value)
         {
             _metaData[key] = value;
-            return this;
         }
 
         /// <summary>
@@ -323,13 +316,11 @@ namespace HtmlTags
         /// <param name="key">The name of the stored value</param>
         /// <param name="configure">The action to perform on the currently stored value</param>
         /// <returns>The calling tag.</returns>
-        public HtmlTag MetaData<T>(string key, Action<T> configure) where T : class
+        public virtual void MetaData<T>(string key, Action<T> configure) where T : class
         {
-            if (!_metaData.Has(key)) return this;
+            if (!_metaData.Has(key)) return;
             var value = (T) _metaData[key];
             configure(value);
-
-            return this;
         }
 
         /// <summary>
@@ -339,25 +330,22 @@ namespace HtmlTags
         /// <returns>The calling tag.</returns>
         public object MetaData(string key) => !_metaData.Has(key) ? null : _metaData[key];
 
-        public HtmlTag Text(string text)
+        protected internal virtual void Text(string text)
         {
             _innerText = text;
-            return this;
         }
 
         public string Text() => _innerText;
 
 
-        public HtmlTag Modify(Action<HtmlTag> action)
+        protected internal virtual void Modify(Action<HtmlTag> action)
         {
             action(this);
-            return this;
         }
 
-        public HtmlTag Authorized(bool isAuthorized)
+        protected internal virtual void Authorized(bool isAuthorized)
         {
             _isAuthorized = isAuthorized;
-            return this;
         }
 
         public bool Authorized() => _isAuthorized;
@@ -389,10 +377,9 @@ namespace HtmlTags
 
         private bool _renderFromTop;
 
-        public HtmlTag RenderFromTop()
+        protected internal virtual void RenderFromTop()
         {
             _renderFromTop = true;
-            return this;
         }
 
         private static HtmlTag WalkToTop(HtmlTag htmlTag)
@@ -503,31 +490,32 @@ namespace HtmlTags
             }
         }
 
-        public HtmlTag Attr(string attribute, object value) => BuildAttr(attribute, value);
+        protected internal virtual void Attr(string attribute, object value) => BuildAttr(attribute, value);
 
-        public HtmlTag BooleanAttr(string attribute)
+        protected internal virtual void BooleanAttr(string attribute)
         {
             if (IsCssClassAttr(attribute))
             {
-                return BuildAttr(attribute, null);
+                BuildAttr(attribute, null);
             }
 
             _htmlAttributes[attribute] = null;
-            return this;
         }
 
-        public HtmlTag UnencodedAttr(string attribute, object value) => BuildAttr(attribute, value, false);
+        protected internal virtual void UnencodedAttr(string attribute, object value) => BuildAttr(attribute, value, false);
 
-        private HtmlTag BuildAttr(string attribute, object value, bool encode = true)
+        protected internal virtual void BuildAttr(string attribute, object value, bool encode = true)
         {
             if (value == null)
             {
-                return RemoveAttr(attribute);
+                RemoveAttr(attribute);
+                return;
             }
             if (value.Equals(string.Empty) &&
                 (IsCssClassAttr(attribute) || IsCssStyleAttr(attribute) || IsMetadataAttr(attribute)))
             {
-                return RemoveAttr(attribute);
+                RemoveAttr(attribute);
+                return;
             }
             if (IsCssClassAttr(attribute))
             {
@@ -537,7 +525,6 @@ namespace HtmlTags
             {
                 _htmlAttributes[attribute] = new HtmlAttribute(value.ToString(), encode);
             }
-            return this;
         }
 
         private static bool IsCssClassAttr(string attribute) => attribute.Equals(CssClassAttribute, StringComparison.OrdinalIgnoreCase);
@@ -552,7 +539,7 @@ namespace HtmlTags
             return attrVal?.ToString() ?? string.Empty;
         }
 
-        public HtmlTag RemoveAttr(string attribute)
+        protected internal virtual void RemoveAttr(string attribute)
         {
             if (IsCssClassAttr(attribute))
             {
@@ -570,16 +557,14 @@ namespace HtmlTags
             {
                 _htmlAttributes.Remove(attribute);
             }
-            return this;
         }
 
-        public HtmlTag Render(bool shouldRender)
+        protected internal virtual void Render(bool shouldRender)
         {
             _shouldRender = shouldRender;
-            return this;
         }
 
-        public bool Render() => _shouldRender;
+        public virtual bool Render() => _shouldRender;
 
         /// <summary>
         /// Adds one or more classes (separated by spaces) to the tag
@@ -587,7 +572,7 @@ namespace HtmlTags
         /// <param name="className">Valid CSS class name, JSON object, JSON array, or multiple valid CSS class names separated by spaces</param>
         /// <returns>The tag for method chaining</returns>
         /// <exception cref="System.ArgumentException">One or more CSS class names were invalid (contained invalid characters)</exception>
-        public HtmlTag AddClass(string className)
+        protected internal virtual void AddClass(string className)
         {
             IEnumerable<string> classes = ParseClassName(className);
             foreach (string parsedClass in classes)
@@ -599,8 +584,6 @@ namespace HtmlTags
 
                 _cssClasses.Add(parsedClass);
             }
-
-            return this;
         }
 
         /// <summary>
@@ -624,32 +607,30 @@ namespace HtmlTags
             return classes;
         }
 
-        public HtmlTag AddClasses(params string[] classes) => AddClasses((IEnumerable<string>)classes);
+        protected internal virtual void AddClasses(params string[] classes) => AddClasses((IEnumerable<string>)classes);
 
-        public HtmlTag AddClasses(IEnumerable<string> classes)
+        protected internal virtual void AddClasses(IEnumerable<string> classes)
         {
             foreach (var cssClass in classes)
             {
                 AddClass(cssClass);
             }
-            return this;
         }
 
         public IEnumerable<string> GetClasses() => _cssClasses;
 
         public bool HasClass(string className) => _cssClasses.Contains(className);
 
-        public HtmlTag RemoveClass(string className)
+        protected internal virtual void RemoveClass(string className)
         {
             _cssClasses.Remove(className);
-            return this;
         }
 
         public bool HasMetaData(string key) => _metaData.Has(key);
 
         public string Title() => Attr("title");
 
-        public HtmlTag Title(string title) => Attr("title", title);
+        protected internal virtual void Title(string title) => Attr("title", title);
 
         public bool HasAttr(string key)
         {
@@ -676,23 +657,20 @@ namespace HtmlTags
         /// Used for declaring container/placeholder tags that should not affect the final markup.
         /// </summary>
         /// <returns></returns>
-        public HtmlTag NoTag()
+        protected internal virtual void NoTag()
         {
             _ignoreOpeningTag = true;
             _ignoreClosingTag = true;
-            return this;
         }
 
-        public HtmlTag NoClosingTag()
+        protected internal virtual void NoClosingTag()
         {
             _ignoreClosingTag = true;
-            return this;
         }
 
-        public HtmlTag UseClosingTag()
+        protected internal virtual void UseClosingTag()
         {
             _ignoreClosingTag = false;
-            return this;
         }
 
         /// <summary>
@@ -721,12 +699,11 @@ namespace HtmlTags
             return wrapper;
         }
 
-        public HtmlTag VisibleForRoles(IPrincipal principal, params string[] roles) => Render(roles.Any(principal.IsInRole));
+        public HtmlTag VisibleForRoles(IPrincipal principal, params string[] roles) => HtmlTagExtensions.Render(this, roles.Any(principal.IsInRole));
 
-        public HtmlTag Encoded(bool encodeInnerText)
+        protected internal virtual void Encoded(bool encodeInnerText)
         {
             _encodeInnerText = encodeInnerText;
-            return this;
         }
 
         public bool Encoded() => _encodeInnerText;
@@ -755,19 +732,17 @@ namespace HtmlTags
             return ((ITagSource)this).AllTags().First(child => child.TagName().EqualsIgnoreCase(tagName));
         }
 
-        public HtmlTag TextIfEmpty(string defaultText)
+        protected internal virtual void TextIfEmpty(string defaultText)
         {
             if (TagName().EqualsIgnoreCase("input")) throw new InvalidOperationException("You are attempting to set the inner text on an INPUT tag. If you wanted a textarea, call MultilineMode() first.");
             if (Text().IsEmpty())
             {
                 Text(defaultText);
             }
-
-            return this;
         }
 
-        public HtmlTag Name(string name) => Attr("name", name);
+        protected internal virtual void Name(string name) => Attr("name", name);
 
-        public HtmlTag Value(string value) => Attr("value", value);
+        protected internal virtual void Value(string value) => Attr("value", value);
     }
 }

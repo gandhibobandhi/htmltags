@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Should;
 using Xunit;
@@ -382,6 +381,7 @@ namespace HtmlTags.Testing
             tag.ToString().ShouldEqual("<input required />");
 		}
 		
+        [Fact]
         public void set_an_attribute_to_empty_string_should_not_remove_the_attribute() {
             var tag = new HtmlTag("div");
             tag.Attr("name", "bill");
@@ -476,7 +476,7 @@ namespace HtmlTags.Testing
 
             tag.AddClasses(classes);
 
-            var tagClasses = tag.GetClasses();
+            var tagClasses = tag.GetClasses().ToArray();
 
             tagClasses.ShouldHaveCount(2);
             tagClasses.Except(classes).ShouldHaveCount(0);

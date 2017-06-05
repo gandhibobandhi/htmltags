@@ -10,7 +10,7 @@ namespace HtmlTags.Extended
                 return tag;
             }
 
-            public static HtmlTag Value(this HtmlTag tag, object value) => tag.Attr("value", value);
+            public static HtmlTag Value(this HtmlTag tag, object value) => HtmlTagExtensions.Attr(tag, "value", value);
 
             public static T Name<T>(this T tag, string name) where T : HtmlTag
             {
@@ -38,7 +38,7 @@ namespace HtmlTags.Extended
 
             public static T PasswordMode<T>(this T tag) where T : HtmlTag
             {
-                tag.TagName("input").Attr("type", "password");
+                HtmlTagExtensions.Attr(HtmlTagExtensions.TagName(tag, "input"), "type", "password");
                 tag.NoAutoComplete();
                 return tag;
             }

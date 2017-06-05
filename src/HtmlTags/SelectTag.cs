@@ -46,7 +46,7 @@ namespace HtmlTags
             return this;
         }
 
-        private static HtmlTag MakeOption(string display, object value) => new HtmlTag("option").Text(display).Attr("value", value);
+        private static HtmlTag MakeOption(string display, object value) => HtmlTagExtensions.Attr(HtmlTagExtensions.Text(new HtmlTag("option"), display), "value", value);
 
         public void SelectByValue(object value)
         {
